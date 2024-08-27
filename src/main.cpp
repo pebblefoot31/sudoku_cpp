@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 
     //error check cmdline args: ensure correct amount and type (the file must end in 'txt')
     if (argc != 2) {
-        std::cerr << "Too many args." << std::endl;
+        std::cerr << "Incorrect num of args." << std::endl;
         return 1;
     }
 
@@ -39,9 +39,9 @@ int main(int argc, char* argv[]) {
     int row = 0;
 
     //use getline and stringstream to populate the vector buffer + output puzzle
-    /*std::cout << "============================" << std::endl;
+    std::cout << "============================" << std::endl;
     std::cout << "        THE PUZZLE" << std::endl;
-    std::cout << "============================" << std::endl;*/
+    std::cout << "============================" << std::endl;
     std::cout << "Row " << row + 1 << ":     "; 
     while (getline(inputFile, line)) {
 
@@ -68,7 +68,46 @@ int main(int argc, char* argv[]) {
             count++;
         }
     }
+
     std::cout << std::endl;
+    std::cout << std::endl;
+
+    int col = 0;
+    int colLimit = 0;
+    count = 0;
+
+    while (true) {
+
+        for (row = 0; row < 9; row++) {
+
+
+            while (count < 3) {
+                //std::cout << "row: " << row << " col: " << col << std::endl;
+                std::cout << sudokuPuzzle[row][col] << " "; 
+                col++;
+                count++;
+            }
+
+            std::cout << std::endl;
+
+            count = 0;
+            col = colLimit;
+        }
+
+        if (col < 5) {
+            
+            colLimit +=3;
+            col = colLimit;
+            //count = 0;
+            row = 0;
+        }
+
+        else {
+
+            break;
+        }
+    }
+
 
     //simplified algorithm for solving the 9x9 sudoku puzzle
     //1. validate current puzzle by traversing through each value in each 3x3 grid of 
