@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 int main(int argc, char* argv[]) {
 
@@ -31,10 +32,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::vector<std::vector<int>> sudokuPuzzle(9, std::vector<int>(9,0));    //initializing a 9x9 matrix filled in with 0s
+    std::vector<std::vector<int>> sudokuPuzzle(9);
 
     std::string line;
-    char num;
+    //char num;
     int count = 0;
     int row = 0;
 
@@ -46,7 +47,9 @@ int main(int argc, char* argv[]) {
     while (getline(inputFile, line)) {
 
         std::stringstream numbers(line);
-        while (numbers >> num) {
+        std::string numString;
+        
+        while (numbers >> numString) {
 
             if (count == 9) {
                 row++;
@@ -55,12 +58,13 @@ int main(int argc, char* argv[]) {
                 count = 0;
             }
 
-            if (num == '-') {
+            if (numString == "-") {
                 sudokuPuzzle[row].push_back(0);
                 std::cout << "0 "; 
             }
 
             else {
+                int num = atoi(numString.c_str());
                 sudokuPuzzle[row].push_back(num);
                 std::cout << num << " "; 
             }
@@ -72,10 +76,25 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     std::cout << std::endl;
 
+    std::cout << "verifying buffer. " << std::endl;
+    std::cout << std::endl;
+    
+
     int col = 0;
     int colLimit = 0;
     count = 0;
 
+    for (row = 0; row < 9; row++){
+
+        for (col = 0; col < 9; col++) {
+
+            std::cout << sudokuPuzzle[row][col] << " "; 
+        }
+
+        std::cout << std::endl;
+    }
+
+    /*
     while (true) {
 
         for (row = 0; row < 9; row++) {
@@ -106,7 +125,7 @@ int main(int argc, char* argv[]) {
 
             break;
         }
-    }
+    }*/
 
 
     //simplified algorithm for solving the 9x9 sudoku puzzle
