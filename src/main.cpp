@@ -76,13 +76,15 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     std::cout << std::endl;
 
+    int col = 0;
+    int colLimit = 0;
+    count = 0;
+
+    /*
     std::cout << "verifying buffer. " << std::endl;
     std::cout << std::endl;
     
 
-    int col = 0;
-    int colLimit = 0;
-    count = 0;
 
     for (row = 0; row < 9; row++){
 
@@ -92,32 +94,66 @@ int main(int argc, char* argv[]) {
         }
 
         std::cout << std::endl;
-    }
+    }*/
 
-    /*
+    int rowcount;
+    std::cout << "3x3 GRID:" << std::endl;
+    vector<int> numbers = {1,2,3,4,5,6,7,8,9};
+    vector<pair<int, int>> coordinates;
+
     while (true) {
-
+        
+        //iterating through 3x3 grids
         for (row = 0; row < 9; row++) {
 
 
+            //printing 3 column values per row
             while (count < 3) {
-                //std::cout << "row: " << row << " col: " << col << std::endl;
+
+                if (sudokuPuzzle[row][col] == 0) {
+                    coordinates.push_back(make_pair(row, col));
+                    std::cout << "Empty value. Adding coordinate pair to vector of empty box coordinates." << std::endl;
+                }
+
                 std::cout << sudokuPuzzle[row][col] << " "; 
+
+                if (count == 2) {
+                    //std::cout << std::endl;
+                    std::cout << std::endl;
+                }
+
+
                 col++;
                 count++;
             }
 
-            std::cout << std::endl;
-
             count = 0;
             col = colLimit;
+            
+            if ((row+1)%3 == 0){ 
+                std::cout << std::endl;
+                std::cout << "3x3 GRID:"; 
+                std::cout << std::endl;
+
+                //if the empty coordinates vector ISNT empty after first traversal... 
+                //do not update finished grid count
+                //traverse the grid AGAIN, this time going to every coordinate in coordinates vector
+                //try all values 1-9 in each coordinate in the empty list
+                //use validate functions to see if it fits
+                //if works, pop that coordinate from that vector, move on to next pair in vector
+                //after having gone through entire vector and trying nums in 
+                //clear the vector. 
+                //
+                //if it IS empty.....
+                //move on to next grid and repeat begin first traversal
+                //update finished_grid count by 1
+            }
         }
 
         if (col < 5) {
             
             colLimit +=3;
             col = colLimit;
-            //count = 0;
             row = 0;
         }
 
@@ -125,7 +161,7 @@ int main(int argc, char* argv[]) {
 
             break;
         }
-    }*/
+    }
 
 
     //simplified algorithm for solving the 9x9 sudoku puzzle
