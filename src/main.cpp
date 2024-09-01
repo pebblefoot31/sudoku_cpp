@@ -17,9 +17,21 @@ bool check_val(int row, int col, int value, vector<int> &gridVals, vector<vector
             return false; //invalid in the column
     }
 
-    for (int k = 0; k < gridVals.size(); k++) {
+    for (size_t k = 0; size_t < gridVals.size(); k++) {
         if (gridVals[k] == value)
             return false; //invalid in the grid 
+    }
+
+    return true;
+}
+
+bool check_solved(vector<vector<int>> &puzzle) {
+
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            if (puzzle[i][j] == 0)
+                return false;
+        }
     }
 
     return true;
@@ -112,50 +124,45 @@ int main(int argc, char* argv[]) {
     }*/
 
     int rowcount;
-    std::cout << "3x3 GRID:" << std::endl;
-
     vector<int> grid;  //maintaining a list of values present in current 3x3 grid 
-    vector<pair<int, int>> coordinates;
+    vector<pair<int, int>> coordinates; //maintaining a list of coordinate pairs 
+                                        //that have 0 (represent empty boxes) in current 3x3 grid
 
+    //solving the puzzle each 3x3 grid at a time
     while (true) {
         
-        //iterating through 3x3 grids
-        for (row = 0; row < 9; row++) {
+        if (check_solved(sudokuPuzzle)) {
+            break;
+        }
 
+        //iterating through grids row by row
+        for (row = 0; row < 9; row++) {
 
             //printing 3 column values per row
             while (count < 3) {
 
-                if (sudokuPuzzle[row][col] == 0) {
+                //checking for empty value. Adding coordinate pair to vector 
+                //of empty box coordinates for this particular grid
+                if (sudokuPuzzle[row][col] == 0)
                     coordinates.push_back(make_pair(row, col));
-                    //Empty value. Adding coordinate pair to vector 
-                    //of empty box coordinates for this particular grid
-                }
-                
-                else {
-
+                else
                     grid.push_back(sudokuPuzzle[row][col]);
-                }
 
-                std::cout << sudokuPuzzle[row][col] << " "; 
 
-                if (count == 2) {
-                    //std::cout << std::endl;
+                //std::cout << sudokuPuzzle[row][col] << " "; 
+
+                //done printing 3 vals for that row
+                if (count == 2)
                     std::cout << std::endl;
-                }
 
-
+                //updating column and how many vals have been printed in the row
                 col++;
                 count++;
-            }
+            } 
 
-            count = 0;
-            col = colLimit;
-            int fullGrids = 0;
-
-            if (fullGrids == 9) {
-                break;
-            }
+            
+            count = 0; //re-starting set of 3 for next row
+            col = colLimit; 
             
             if ((row+1)%3 == 0){ 
                 std::cout << std::endl;
@@ -200,7 +207,9 @@ int main(int argc, char* argv[]) {
                //if all coordinates of this grid ARE full!
                else {
 
-                   fullGrids++;
+                    if (check_solved(sudokuPuzzle)) {
+                         break;
+                    }
                }
 
                 grid.clear();
@@ -212,15 +221,15 @@ int main(int argc, char* argv[]) {
 
         if (col < 5) {
             
-            colLimit +=3;
+            colLimit +=3; //moving to the right in terms of starting col coordinate 
             col = colLimit;
-            row = 0;
+            row = 0; //starting from top row again
         }
 
         else {
-
-            break;
+            col = 0; //iterating through puzzle again from the beginning
         }
+
     }
 
     std::cout << "solved puzzle." << std::endl;
