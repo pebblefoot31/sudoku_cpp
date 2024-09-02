@@ -5,7 +5,30 @@
 #include <vector>
 #include <cstdlib>
 
-bool check_val(int row, int col, int value, vector<int> &gridVals, vector<vector<int>> &puzzle) {
+//SUDOKU SOLVER
+
+//simplified algorithm for solving the 9x9 sudoku puzzle
+//1. validate current puzzle by traversing through each value in each 3x3 grid of 
+//   this puzzle from left to right or top to bottom (whichever is easier)
+//2. after having validated the original puzzle (i.e. checking that all rules of 
+//   sudoku have been met), beginning going throuhg each 3x3 grid and establish a 
+//   way to keep track of which spaces are empty (coordinate pair) and which number
+//   is missing from each the grid 
+//3. After collecting this information for that particular 3x3 grid, go through the
+//   list of empty spaces in that grid and try each missing value for that particular
+//   3x3 grid
+//4. 'Try each value': check it's compatibility in the context of the row you are looking at,
+//   the column, and the 3x3 grid.
+//5. If the 'try' is successful for a value, then apply 'validate' and double check 
+//   the placement? (this step may be redundant and unnecessary)
+//6. If you are able to place a value successfully into the grid, try all of the values 
+//   again in the remaining spaces in that grid (until you either run out of values 
+//   to try or none of the values working anymore.)
+//7. Loop through the entire puzzle or grid to check for 0s. If there are still 0s,
+//   move on to the next grid.
+//8. Repeat steps until the puzzle has no 0s remaining: this will be the solved puzzle.
+
+bool check_val(int row, int col, int value, std::vector<int> &gridVals, std::vector<std::vector<int>> &puzzle) {
 
     for (int i = 0; i < 9; i++) {
         if (puzzle[row][i] == value)
@@ -17,7 +40,7 @@ bool check_val(int row, int col, int value, vector<int> &gridVals, vector<vector
             return false; //invalid in the column
     }
 
-    for (size_t k = 0; size_t < gridVals.size(); k++) {
+    for (size_t k = 0; k < gridVals.size(); k++) {
         if (gridVals[k] == value)
             return false; //invalid in the grid 
     }
@@ -25,7 +48,7 @@ bool check_val(int row, int col, int value, vector<int> &gridVals, vector<vector
     return true;
 }
 
-bool check_solved(vector<vector<int>> &puzzle) {
+bool check_solved(std::vector<std::vector<int>> &puzzle) {
 
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
@@ -112,6 +135,7 @@ int main(int argc, char* argv[]) {
     int col = 0;
     int colLimit = 0;
     count = 0;
+    bool solved = false;
 
     /*
     std::cout << "verifying buffer. " << std::endl;
@@ -124,14 +148,15 @@ int main(int argc, char* argv[]) {
     }*/
 
     int rowcount;
-    vector<int> grid;  //maintaining a list of values present in current 3x3 grid 
-    vector<pair<int, int>> coordinates; //maintaining a list of coordinate pairs 
+    std::vector<int> grid;  //maintaining a list of values present in current 3x3 grid 
+    std::vector<std::pair<int, int>> coordinates; //maintaining a list of coordinate pairs 
                                         //that have 0 (represent empty boxes) in current 3x3 grid
 
     //solving the puzzle each 3x3 grid at a time
-    while (true) {
+    while (!solved) {
         
         if (check_solved(sudokuPuzzle)) {
+            solved = true;
             break;
         }
 
@@ -144,7 +169,7 @@ int main(int argc, char* argv[]) {
                 //checking for empty value. Adding coordinate pair to vector 
                 //of empty box coordinates for this particular grid
                 if (sudokuPuzzle[row][col] == 0)
-                    coordinates.push_back(make_pair(row, col));
+                    coordinates.push_back(std::make_pair(row, col));
                 else
                     grid.push_back(sudokuPuzzle[row][col]);
 
@@ -152,8 +177,8 @@ int main(int argc, char* argv[]) {
                 //std::cout << sudokuPuzzle[row][col] << " "; 
 
                 //done printing 3 vals for that row
-                if (count == 2)
-                    std::cout << std::endl;
+                /*if (count == 2)
+                    std::cout << std::endl;*/
 
                 //updating column and how many vals have been printed in the row
                 col++;
@@ -164,58 +189,66 @@ int main(int argc, char* argv[]) {
             count = 0; //re-starting set of 3 for next row
             col = colLimit; 
             
-            if ((row+1)%3 == 0){ 
-                std::cout << std::endl;
+            if ((row+1)%3 == 0) { 
+
+                //std::cout << std::endl;
 
                //if the grid had at least one empty box
                if (!coordinates.empty()) { 
 
+                    //iterating through the list of empty boxes
                     for (size_t v = 0; v < coordinates.size(); v++) {
 
-                        for (int n = 1; n < 10; n++) { //try all values in every empty coordinate
+                        //attempting every value 1-9 in empty box
+                        for (int n = 1; n < 10; n++) { 
 
+                            //checking to make sure that the grid isn't full
                             if (coordinates.empty()) {
                                 break;
-                                fullGrids++;
                             }
 
                             //checking if the the value works. if it does, assigning in actual puzzle.
                             if (check_val(coordinates[v].first, coordinates[v].second, n, grid, sudokuPuzzle)) {
+
                                 sudokuPuzzle[coordinates[v].first][coordinates[v].second] = n;
 
                                 //erasing that coordinate pair from the coordinates vector 
                                 if (v < coordinates.size()) {
 
                                     //Convert index to iterator
-                                    std::vector<int>::iterator it = coordinates.begin() + v;
+                                    std::vector<std::pair<int,int>>::iterator it = coordinates.begin() + v;
 
-                                    //Erase the element at the iterator position
+                                    //Erasing the element at the iterator position
                                     coordinates.erase(it);
                                 } 
                                 else {
                                     std::cout << "Index out of bounds." << std::endl;
                                 }
 
-                                //adding n to present grid vals and moving onto next empty coordinate in the grid
+                                //adding n (the number that worked) to present grid vals and moving onto next empty coordinate in the grid
                                 grid.push_back(n);
                                 break;
                             }
                         }
                     }
+
+                    //resetting the grid and coordinates for next 3x3
+                    grid.clear();
+                    coordinates.clear();
+
                 }
 
                //if all coordinates of this grid ARE full!
                else {
 
-                    if (check_solved(sudokuPuzzle)) {
-                         break;
+                    if (check_solved(sudokuPuzzle)) { //checking if the puzzle is solved
+                        solved = true;
+                        break;
                     }
                }
 
-                grid.clear();
-                coordinates.clear();
-                std::cout << "3x3 GRID:"; 
-                std::cout << std::endl;
+                //std::cout << "3x3 GRID:"; 
+                //std::cout << std::endl;
             }
         }
 
@@ -233,27 +266,6 @@ int main(int argc, char* argv[]) {
     }
 
     std::cout << "solved puzzle." << std::endl;
-
-    //simplified algorithm for solving the 9x9 sudoku puzzle
-    //1. validate current puzzle by traversing through each value in each 3x3 grid of 
-    //   this puzzle from left to right or top to bottom (whichever is easier)
-    //2. after having validated the original puzzle (i.e. checking that all rules of 
-    //   sudoku have been met), beginning going throuhg each 3x3 grid and establish a 
-    //   way to keep track of which spaces are empty (coordinate pair) and which number
-    //   is missing from each the grid 
-    //3. After collecting this information for that particular 3x3 grid, go through the
-    //   list of empty spaces in that grid and try each missing value for that particular
-    //   3x3 grid
-    //4. 'Try each value': check it's compatibility in the context of the row you are looking at,
-    //   the column, and the 3x3 grid.
-    //5. If the 'try' is successful for a value, then apply 'validate' and double check 
-    //   the placement? (this step may be redundant and unnecessary)
-    //6. If you are able to place a value successfully into the grid, try all of the values 
-    //   again in the remaining spaces in that grid (until you either run out of values 
-    //   to try or none of the values working anymore.)
-    //7. Loop through the entire puzzle or grid to check for 0s. If there are still 0s,
-    //   move on to the next grid.
-    //8. Repeat steps until the puzzle has no 0s remaining: this will be the solved puzzle.
 
     inputFile.close();
 
