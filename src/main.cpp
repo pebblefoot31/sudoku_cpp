@@ -154,13 +154,10 @@ int main(int argc, char* argv[]) {
                                         //that have 0 (represent empty boxes) in current 3x3 grid
     std::vector<std::map<int, int>> possibilities;
 
-    //initializing a vector of 9 elements and pushing back an empty map in each one.
+    //empty mpa that will hold potential coordinates for 1-9 values
     for (int p = 0; p < 9; p++) {
         std::map<int,int> options;
         possibilities.push_back(options);
-        /*if (possibilities[p].empty()) {
-            std::cout<<"Empty!"<<std::endl;
-        }*/
     }
 
     int repeat = 0;
@@ -173,10 +170,9 @@ int main(int argc, char* argv[]) {
             break;
         }*/
 
-        //iterating through grids row by row
+        //iterating through grids row by row + printing out
         for (row = 0; row < 9; row++) {
 
-            //printing 3 column values per row
             while (count < 3) {
 
                 //checking for empty value. Adding coordinate pair to vector 
@@ -186,14 +182,10 @@ int main(int argc, char* argv[]) {
                 else
                     grid.push_back(sudokuPuzzle[row][col]);
 
-
                 std::cout << sudokuPuzzle[row][col] << " "; 
-
-                //done printing 3 vals for that row
                 if (count == 2)
                     std::cout << std::endl;
 
-                //updating column and how many vals have been printed in the row
                 col++;
                 count++;
             } 
@@ -201,20 +193,19 @@ int main(int argc, char* argv[]) {
             
             count = 0; //re-starting set of 3 for next row
             col = colLimit; 
-            
-            if ((row+1)%3 == 0) { 
+
+            //traversed through grid successfully; built vector of empty coordinates
+            if ((row+1)%3 == 0) {  
 
                 //std::cout << std::endl;
-
-               //if the grid had at least one empty box
 
                 //SOLVING LOGIC 
                 if (!coordinates.empty()) { 
 
-                    //iterating through the list of empty boxes
+                    //iterating through the list of coordinates corresponding to empty boxes
                     for (size_t v = 0; v < coordinates.size(); v++) {
 
-                        //attempting every value 1-9 in empty box
+                        //attempting every value 1-9 in every empty box
                         for (int n = 1; n < 10; n++) { 
 
                             //checking to make sure that the grid isn't full
@@ -225,52 +216,54 @@ int main(int argc, char* argv[]) {
                             //checking if the the value works. if it does, adding to list of possiblities
                             if (check_val(coordinates[v].first, coordinates[v].second, n, grid, sudokuPuzzle)) {
 
-                                //add the coordinate pair to the map corresponding to the n-1 index in the vector
-                                //don't actually make a change in the puzzle. just savee it in the possibilities vector as a potential change
-                                possibilities[n-1].insert(std::pair<int,int>(coordinates[v].first,coordinates[v].second));
+                                //adding to n-1 index in the possibilities vector as a potential value for that box
+                                possibilities[n-1].insert(std::pair<int,int>(coordinates[v].first, coordinates[v].second));
                             }
                         }
                     }
 
-
-                    //in the end (right before we move onto the next grid, we actually want to insert that value n+1 (since indices start at 0)
-                    //only if the map at that vector's index has only one element (size == 1) then insert at those coordinates
                     for (int l = 0; l < 9; l++) {
                     
-                        if (possibilities[9].size() == 1) {
+                        std::map<int,int>::iterator mapIt;
+                        std::map<int,int>::iterator mapItTwo;
+                        if (possibilities[l].size() == 1) {
 
-                            //correct this statement to change the value in the actual puzzle
-                            //sudokuPuzzle[coordinates[v].first][coordinates[v].second] = n;
+                            //if at a particular index in possibilities, there is only one box possible
+                            //insert the value in the box that correspond to the index + 1
+                            mapIt = possibilities[l].begin();
 
+                            //updating the value in the sudoku puzzle
+                            sudokuPuzzle[mapIt->first][mapIt->second] = l+1;
+                            grid.push_back(l+1);
+
+                            //now we want to remove that box's coordinate from coordinates and 
+                            //every occurrence in the possibilities vectors
+                            for (size_t k = 0; k < coordinates.size(); k++) {
+
+                                //search for the same coordinate pair in the possibilities vector. if you find, remove
+                                if (coordinates[k].first == mapIt->first && coordinates[k].second == mapIt->second);
+                                    coordinates.erase(coordinates.begin() + k);
+                            }
+
+                            possibilities[l].clear();
+
+                            for (size_t p = 0; p < possibilities.size(); p++) {
+
+                                mapItTwo = possibilities[p].begin();
+                                while (mapItTwo != possibilities[p].end()) {
+
+                                    if (mapItTwo->first == mapIt->first && mapItTwo->second == mapIt->second)
+                                        possibilities[p].erase(mapIt);
+
+                                    mapIt++;
+                                }
+
+                            }
                             //remove the pair from this index (clear the map at this index)
-                            //search for the same coordinate pair in the possibilities vector. if you find
-                            //remove it. 
-
                         }
 
                     }
 
-                    //probably do not need this anymore...
-                   //erasing that coordinate pair from the coordinates vector 
-                   /*
-                   if (v < coordinates.size()) {
-
-                       //Convert index to iterator
-                       std::vector<std::pair<int,int>>::iterator it = coordinates.begin() + v;
-
-                       //Erasing the element at the iterator position
-                       coordinates.erase(it);
-                   } 
-                   else {
-                       std::cout << "Index out of bounds." << std::endl;
-                   }
-
-                   //adding n (the number that worked) to present grid vals and moving onto next empty coordinate in the grid
-                   grid.push_back(n);
-                   break;*/
-
-
-                    //resetting the grid and coordinates for next 3x3
                     grid.clear();
                     coordinates.clear();
                     possibilities.clear();
